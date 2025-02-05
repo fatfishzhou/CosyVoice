@@ -6,7 +6,7 @@ import numpy as np
 import sys
 
 # 服务器地址（修改为实际 IP）
-SERVER_ADDRESS = "localhost:50000"
+SERVER_ADDRESS = "20.0.137.8:50000"
 
 # 采样率
 SAMPLE_RATE = 16000
