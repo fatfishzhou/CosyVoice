@@ -1,101 +1,73 @@
-import os
-import sys
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append('{}/../../..'.format(ROOT_DIR))
-sys.path.append('{}/../../../third_party/Matcha-TTS'.format(ROOT_DIR))
-import logging
-import argparse
-import wave
 import grpc
-import numpy as np
 import cosyvoice_pb2
 import cosyvoice_pb2_grpc
-from cosyvoice.utils.file_utils import load_wav
+import sounddevice as sd
+import numpy as np
+import sys
 
+# 服务器地址（修改为实际 IP）
+SERVER_ADDRESS = "localhost:50000"
 
+# 采样率
+SAMPLE_RATE = 16000
 
+def play_audio_stream(response):
+    """实时播放服务器返回的音频流"""
+    audio_buffer = bytearray()
 
-def save_wav(filename, audio_data, sample_rate):
-    """使用 wave 库将 PCM 音频数据保存为 .wav 文件"""
-    with wave.open(filename, "wb") as f:
-        f.setnchannels(1)  # 单声道
-        f.setsampwidth(2)  # 16-bit PCM (2字节)
-        f.setframerate(sample_rate)
-        f.writeframes(audio_data)
+    for res in response:
+        audio_buffer.extend(res.tts_audio)
 
+        # 解码为 int16 PCM
+        audio_array = np.frombuffer(audio_buffer, dtype=np.int16)
+        if len(audio_array) > 0:
+            sd.play(audio_array, samplerate=SAMPLE_RATE)
+            sd.wait()
+            audio_buffer.clear()  # 清空 buffer，避免重复播放
 
-def main():
-    with grpc.insecure_channel("{}:{}".format(args.host, args.port)) as channel:
-        stub = cosyvoice_pb2_grpc.CosyVoiceStub(channel)
-        request = cosyvoice_pb2.Request()
+def send_request(mode):
+    """发送请求到服务器，并播放返回的 TTS 音频"""
+    channel = grpc.insecure_channel(SERVER_ADDRESS)
+    stub = cosyvoice_pb2_grpc.CosyVoiceStub(channel)
 
-        if args.mode == 'sft':
-            logging.info('send sft request')
-            sft_request = cosyvoice_pb2.sftRequest()
-            sft_request.spk_id = args.spk_id
-            sft_request.tts_text = args.tts_text
-            request.sft_request.CopyFrom(sft_request)
+    while True:
+        text = input("\n请输入要转换的文本 (输入 'exit' 退出): ").strip()
+        if text.lower() == "exit":
+            break
 
-        elif args.mode == 'zero_shot':
-            logging.info('send zero_shot request')
-            zero_shot_request = cosyvoice_pb2.zeroshotRequest()
-            zero_shot_request.tts_text = args.tts_text
-            zero_shot_request.prompt_text = args.prompt_text
-            prompt_speech = load_wav(args.prompt_wav, 16000)
-            zero_shot_request.prompt_audio = (prompt_speech.numpy() * (2**15)).astype(np.int16).tobytes()
-            request.zero_shot_request.CopyFrom(zero_shot_request)
-
-        elif args.mode == 'cross_lingual':
-            logging.info('send cross_lingual request')
-            cross_lingual_request = cosyvoice_pb2.crosslingualRequest()
-            cross_lingual_request.tts_text = args.tts_text
-            prompt_speech = load_wav(args.prompt_wav, 16000)
-            cross_lingual_request.prompt_audio = (prompt_speech.numpy() * (2**15)).astype(np.int16).tobytes()
-            request.cross_lingual_request.CopyFrom(cross_lingual_request)
-
+        if mode == "sft":
+            spk_id = input("请输入说话人ID: ").strip()
+            request = cosyvoice_pb2.Request(sft_request=cosyvoice_pb2.SFTRequest(tts_text=text, spk_id=spk_id))
+        elif mode == "zero_shot":
+            prompt_text = input("请输入音色参考文本 (server 内部查找对应音频): ").strip()
+            request = cosyvoice_pb2.Request(zero_shot_request=cosyvoice_pb2.ZeroShotRequest(tts_text=text, prompt_text=prompt_text))
+        elif mode == "cross_lingual":
+            prompt_text = input("请输入跨语言参考文本 (server 内部查找对应音频): ").strip()
+            request = cosyvoice_pb2.Request(cross_lingual_request=cosyvoice_pb2.CrossLingualRequest(tts_text=text, prompt_text=prompt_text))
+        elif mode == "instruct":
+            spk_id = input("请输入说话人ID: ").strip()
+            instruct_text = input("请输入指令文本 (e.g., '用四川话说这句话'): ").strip()
+            request = cosyvoice_pb2.Request(instruct_request=cosyvoice_pb2.InstructRequest(tts_text=text, spk_id=spk_id, instruct_text=instruct_text))
         else:
-            logging.info('send instruct request')
-            instruct_request = cosyvoice_pb2.instructRequest()
-            instruct_request.tts_text = args.tts_text
-            instruct_request.spk_id = args.spk_id
-            instruct_request.instruct_text = args.instruct_text
-            request.instruct_request.CopyFrom(instruct_request)
-
+            print("模式错误！")
+            return
+        
+        print("\n🎙️ 服务器处理中...")
         response = stub.Inference(request)
-        tts_audio = b''
-
-        # 逐块接收音频数据
-        for r in response:
-            tts_audio += r.tts_audio
-
-        if len(tts_audio) == 0:
-            raise ValueError("❌ 服务器返回的音频数据为空，请检查 server.py 是否正确生成音频！")
-
-        logging.info('save response to {}'.format(args.tts_wav))
-        save_wav(args.tts_wav, tts_audio, target_sr)
-        logging.info('✅ 音频已保存：{}'.format(args.tts_wav))
-
+        play_audio_stream(response)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--host', type=str, default='0.0.0.0')
-    parser.add_argument('--port', type=int, default='50000')
-    parser.add_argument('--mode', default='sft',
-                        choices=['sft', 'zero_shot', 'cross_lingual', 'instruct'],
-                        help='request mode')
-    parser.add_argument('--tts_text', type=str,
-                        default='你好，我是通义千问语音合成大模型，请问有什么可以帮您的吗？')
-    parser.add_argument('--spk_id', type=str, default='中文女')
-    parser.add_argument('--prompt_text', type=str,
-                        default='希望你以后能够做的比我还好呦。')
-    parser.add_argument('--prompt_wav', type=str,
-                        default='../../../asset/zero_shot_prompt.wav')
-    parser.add_argument('--instruct_text', type=str,
-                        default="Theo 'Crimson', is a fiery, passionate rebel leader. "
-                                "Fights with fervor for justice, but struggles with impulsiveness.")
-    parser.add_argument('--tts_wav', type=str, default='demo.wav')
-    args = parser.parse_args()
+    print("\n请选择模式: ")
+    print("1️⃣  SFT (选择固定音色)")
+    print("2️⃣  Zero-shot (用文本匹配音色)")
+    print("3️⃣  Cross-lingual (跨语言)")
+    print("4️⃣  Instruct (指定风格/口音)")
 
-    # 采样率设定
-    prompt_sr, target_sr = 16000, 22050
-    main()
+    mode_map = {"1": "sft", "2": "zero_shot", "3": "cross_lingual", "4": "instruct"}
+    mode = input("\n请输入模式编号: ").strip()
+    mode = mode_map.get(mode)
+
+    if mode:
+        send_request(mode)
+    else:
+        print("❌ 无效选择，程序退出！")
