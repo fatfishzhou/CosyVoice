@@ -1,5 +1,8 @@
 import os
 import sys
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(f'{ROOT_DIR}/../../..')
+sys.path.append(f'{ROOT_DIR}/../../../third_party/Matcha-TTS')
 from concurrent import futures
 import argparse
 import cosyvoice_pb2
@@ -11,11 +14,6 @@ import numpy as np
 
 # 关闭 Matplotlib 的警告
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
-
-# 设置路径
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(f'{ROOT_DIR}/../../..')
-sys.path.append(f'{ROOT_DIR}/../../../third_party/Matcha-TTS')
 
 # 导入 CosyVoice2
 from cosyvoice.cli.cosyvoice import CosyVoice2
