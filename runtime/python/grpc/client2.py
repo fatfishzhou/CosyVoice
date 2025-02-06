@@ -23,7 +23,7 @@ def save_audio(audio_buffer, output_filename="output_audio.wav"):
     """保存音频为 WAV 文件"""
     with wave.open(output_filename, 'wb') as wf:
         wf.setnchannels(1)  # 单声道
-        wf.setsampwidth(2)  # 16-bit PCM
+        wf.setsampwidth(2)  # 24-bit PCM
         wf.setframerate(SAMPLE_RATE)
         wf.writeframes(audio_buffer)
     print(f"💾 音频已保存至 {output_filename}")
@@ -47,21 +47,22 @@ def send_request(mode):
         text = input("\n请输入要转换的文本 (输入 'exit' 退出): ").strip()
         if text.lower() == "exit":
             break
+        
+        prompt_text1="卡迪夫我还没有听过，反正南方那些城市我都没怎么玩过，我去过最南的地方大概就是伦敦了"
 
         if mode == "zero_shot":
             request = cosyvoice_pb2.Request(
-                zero_shot_request=cosyvoice_pb2.zeroshotRequest(tts_text=text, prompt_text="卡迪夫我还没有听过，反正南方那些城市我都没怎么玩过，我去过最南的地方大概就是伦敦了")
+                zero_shot_request=cosyvoice_pb2.zeroshotRequest(tts_text=text, prompt_text=prompt_text1)
             )
         elif mode == "cross_lingual":
-            prompt_text = input("请输入跨语言参考文本 (server 内部查找对应音频): ").strip(1)
             request = cosyvoice_pb2.Request(
-                cross_lingual_request=cosyvoice_pb2.CrossLingualRequest(tts_text=text, prompt_text="卡迪夫我还没有听过，反正南方那些城市我都没怎么玩过，我去过最南的地方大概就是伦敦了")
+                cross_lingual_request=cosyvoice_pb2.crosslingualRequest(tts_text=text)
             )
         elif mode == "instruct":
             spk_id = input("请输入说话人ID: ").strip()
             instruct_text = input("请输入指令文本 (e.g., '用四川话说这句话'): ").strip()
             request = cosyvoice_pb2.Request(
-                instruct_request=cosyvoice_pb2.InstructRequest(tts_text=text, spk_id=spk_id, instruct_text=instruct_text)
+                instruct_request=cosyvoice_pb2.instructRequest(tts_text=text, spk_id=spk_id, prompt_text=prompt_text1,instruct_text=instruct_text)
             )
         else:
             print("模式错误！")
