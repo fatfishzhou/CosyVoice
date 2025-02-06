@@ -49,9 +49,8 @@ def send_request(mode):
             break
 
         if mode == "zero_shot":
-            prompt_text = input("请输入音色参考文本 (server 内部查找对应音频): ").strip()
             request = cosyvoice_pb2.Request(
-                zero_shot_request=cosyvoice_pb2.zeroshotRequest(tts_text=text, prompt_text=prompt_text)
+                zero_shot_request=cosyvoice_pb2.zeroshotRequest(tts_text=text)
             )
         elif mode == "cross_lingual":
             prompt_text = input("请输入跨语言参考文本 (server 内部查找对应音频): ").strip()

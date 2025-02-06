@@ -8,6 +8,7 @@ import cosyvoice_pb2_grpc
 import logging
 import grpc
 import torch
+import torchaudio
 import numpy as np
 
 # ROOT_DIR = ... 和 sys.path.append 用于把项目上的本地包（包括 cosyvoice 以及 Matcha-TTS 等）加入 Python Path，确保本地模块导入时能正常找到。
