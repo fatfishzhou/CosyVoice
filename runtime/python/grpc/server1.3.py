@@ -68,7 +68,7 @@ class CosyVoiceServiceImpl(cosyvoice_pb2_grpc.CosyVoiceServicer):
             model_output = self.cosyvoice.inference_zero_shot(
                 tts_text,
                 prompt_text,
-                prompt_speech_16k
+                prompt_speech_16k,
                 stream=False
             )
             logging.info(f"Generated speech tensor shape: {model_output[0]['tts_speech'].shape}")
