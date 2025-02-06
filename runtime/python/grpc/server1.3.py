@@ -94,6 +94,7 @@ class CosyVoiceServiceImpl(cosyvoice_pb2_grpc.CosyVoiceServicer):
         server_audio = torch.cat([i['tts_speech'] for i in model_output], dim=1)
         output_path = os.path.join(ROOT_DIR, "server_generated.wav")
         torchaudio.save(output_path, server_audio, self.cosyvoice.sample_rate, format="wav")
+
         logging.info(f"Saved server-generated audio to {output_path}")
         logging.info(f"CosyVoice sample rate: {self.cosyvoice.sample_rate}")
         logging.info(f"Expected duration: {server_audio.shape[1] / self.cosyvoice.sample_rate:.2f} sec")

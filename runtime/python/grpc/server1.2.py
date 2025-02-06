@@ -28,7 +28,7 @@ logging.basicConfig(level=logging.DEBUG,
 class CosyVoiceServiceImpl(cosyvoice_pb2_grpc.CosyVoiceServicer):
     def __init__(self, args):
         try:
-            self.cosyvoice = CosyVoice2(args.model_dir)
+            self.cosyvoice = CosyVoice2(args.model_dir,fp16=True)
             logging.info('CosyVoice2 model loaded successfully')
         except Exception as e:
             logging.error(f'Failed to load CosyVoice2 model: {e}')

@@ -10,7 +10,7 @@ import sys
 SERVER_ADDRESS = "20.0.137.8:50000"
 
 # 采样率
-SAMPLE_RATE = 16000
+SAMPLE_RATE = 24000
 
 def play_audio(audio_buffer):
     """实时播放音频"""
@@ -53,9 +53,9 @@ def send_request(mode):
                 zero_shot_request=cosyvoice_pb2.zeroshotRequest(tts_text=text, prompt_text="卡迪夫我还没有听过，反正南方那些城市我都没怎么玩过，我去过最南的地方大概就是伦敦了")
             )
         elif mode == "cross_lingual":
-            prompt_text = input("请输入跨语言参考文本 (server 内部查找对应音频): ").strip()
+            prompt_text = input("请输入跨语言参考文本 (server 内部查找对应音频): ").strip(1)
             request = cosyvoice_pb2.Request(
-                cross_lingual_request=cosyvoice_pb2.CrossLingualRequest(tts_text=text, prompt_text=prompt_text)
+                cross_lingual_request=cosyvoice_pb2.CrossLingualRequest(tts_text=text, prompt_text="卡迪夫我还没有听过，反正南方那些城市我都没怎么玩过，我去过最南的地方大概就是伦敦了")
             )
         elif mode == "instruct":
             spk_id = input("请输入说话人ID: ").strip()
