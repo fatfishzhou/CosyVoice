@@ -40,7 +40,7 @@ def send_request(mode):
             request = cosyvoice_pb2.Request(sft_request=cosyvoice_pb2.SFTRequest(tts_text=text, spk_id=spk_id))
         elif mode == "zero_shot":
             prompt_text = input("请输入音色参考文本 (server 内部查找对应音频): ").strip()
-            request = cosyvoice_pb2.Request(zero_shot_request=cosyvoice_pb2.ZeroShotRequest(tts_text=text, prompt_text=prompt_text))
+            request = cosyvoice_pb2.Request(zero_shot_request=cosyvoice_pb2.zeroshotRequest(tts_text=text, prompt_text=prompt_text))
         elif mode == "cross_lingual":
             prompt_text = input("请输入跨语言参考文本 (server 内部查找对应音频): ").strip()
             request = cosyvoice_pb2.Request(cross_lingual_request=cosyvoice_pb2.CrossLingualRequest(tts_text=text, prompt_text=prompt_text))
