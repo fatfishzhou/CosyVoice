@@ -14,7 +14,7 @@ SAMPLE_RATE = 16000
 
 def play_audio(audio_buffer):
     """实时播放音频"""
-    audio_array = np.frombuffer(audio_buffer, dtype=np.int16)
+    audio_array = np.frombuffer(audio_buffer, dtype=np.int32)
     if len(audio_array) > 0:
         sd.play(audio_array, samplerate=SAMPLE_RATE)
         sd.wait()
@@ -50,7 +50,7 @@ def send_request(mode):
 
         if mode == "zero_shot":
             request = cosyvoice_pb2.Request(
-                zero_shot_request=cosyvoice_pb2.zeroshotRequest(tts_text=text)
+                zero_shot_request=cosyvoice_pb2.zeroshotRequest(tts_text=text, prompt_text="卡迪夫我还没有听过，反正南方那些城市我都没怎么玩过，我去过最南的地方大概就是伦敦了")
             )
         elif mode == "cross_lingual":
             prompt_text = input("请输入跨语言参考文本 (server 内部查找对应音频): ").strip()
