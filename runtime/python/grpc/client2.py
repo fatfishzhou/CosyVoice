@@ -14,7 +14,7 @@ SAMPLE_RATE = 16000
 
 def play_audio(audio_buffer):
     """实时播放音频"""
-    audio_array = np.frombuffer(audio_buffer, dtype=np.int32)
+    audio_array = np.frombuffer(audio_buffer, dtype=np.int16)
     if len(audio_array) > 0:
         sd.play(audio_array, samplerate=SAMPLE_RATE)
         sd.wait()

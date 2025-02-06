@@ -69,7 +69,10 @@ class CosyVoiceServiceImpl(cosyvoice_pb2_grpc.CosyVoiceServicer):
                 tts_text,
                 prompt_text,
                 prompt_speech_16k
+                stream=False
             )
+            logging.info(f"Generated speech tensor shape: {model_output[0]['tts_speech'].shape}")
+            logging.info(f"CosyVoice sample rate: {self.cosyvoice.sample_rate}")
 
         elif request.HasField('cross_lingual_request'):
             logging.info('Received cross-lingual inference request')
@@ -106,7 +109,7 @@ class CosyVoiceServiceImpl(cosyvoice_pb2_grpc.CosyVoiceServicer):
         output_path = os.path.join(ROOT_DIR, "server_generated.wav")
         torchaudio.save(output_path, server_audio, 16000, format="wav")
         logging.info(f"Saved server-generated audio to {output_path}")
-        
+
         for i in model_output:
             response = cosyvoice_pb2.Response()
             response.tts_audio = (i['tts_speech'].numpy() * (2 ** 15)).astype(np.int16).tobytes()
