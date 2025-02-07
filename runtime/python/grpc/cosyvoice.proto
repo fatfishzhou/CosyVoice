@@ -5,6 +5,7 @@ option go_package = "protos/";
 
 service CosyVoice{
   rpc Inference(Request) returns (stream Response) {}
+  rpc VoiceChange(voicechangeRequest) returns (stream Response){}
 }
 
 message Request{
@@ -13,6 +14,7 @@ message Request{
     zeroshotRequest zero_shot_request = 2;
     crosslingualRequest cross_lingual_request = 3;
     instructRequest instruct_request = 4;
+    voicechangeRequest voice_change_request = 5;
   }
 }
 
@@ -36,6 +38,11 @@ message instructRequest{
   string tts_text = 1;
   string spk_id = 2;
   string instruct_text = 3;
+}
+
+message voicechangeRequest {
+    string prompt_text = 1;
+    bytes prompt_audio = 2;
 }
 
 message Response{
