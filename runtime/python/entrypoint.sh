@@ -32,7 +32,7 @@ fi
 cd /opt/CosyVoice/CosyVoice/runtime/python/grpc
 
 # 重新生成.proto文件
-protoc --python_out=. --grpc_python_out=. -I. cosyvoice.proto
+python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. cosyvoice.proto
 
 # 4. 启动 gRPC 服务
 echo "Starting server..."
