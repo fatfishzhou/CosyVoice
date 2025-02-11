@@ -5,7 +5,7 @@ WORKDIR /opt/CosyVoice
 
 # 安装系统依赖（包含git和wget）
 RUN apt-get update -y && \
-    apt-get install -y g++ git wget && \
+    apt-get install -y protobuf-compiler g++ git wget && \
     rm -rf /var/lib/apt/lists/*
 
 # 安装 AzCopy
