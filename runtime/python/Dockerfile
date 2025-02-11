@@ -8,6 +8,13 @@ RUN apt-get update -y && \
     apt-get install -y g++ git wget && \
     rm -rf /var/lib/apt/lists/*
 
+# 安装 AzCopy
+RUN wget https://aka.ms/downloadazcopy-v10-linux -O /tmp/azcopy.tgz && \
+    tar -xvf /tmp/azcopy.tgz -C /tmp && \
+    cp /tmp/azcopy_linux_amd64_*/azcopy /usr/local/bin/ && \
+    chmod +x /usr/local/bin/azcopy && \
+    rm -rf /tmp/azcopy*
+
 # 安装Python依赖
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
