@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 确保在出现错误时退出
-# set -e
+set -e
 
 # 1. 设置模型下载 URL（使用环境变量，保证安全）
 MODEL_SAS_URL=${MODEL_SAS_URL:-"https://aiassistmldevw0107074910.blob.core.windows.net/model-cosyvoice/CosyVoice2-0.5B?sp=rl&st=2025-02-11T14:35:13Z&se=2025-12-31T22:35:13Z&spr=https&sv=2022-11-02&sr=c&sig=04wDlFSHH8KK%2FKqMqtG5fdKdHZ%2BPFuUsPgWm8%2FIQ5nM%3D"}
@@ -36,7 +36,7 @@ protoc --python_out=. --grpc_python_out=. -I. cosyvoice.proto
 
 # 4. 启动 gRPC 服务
 echo "Starting server..."
-python3 server.py --port 50000 --max_conc 4 --model_dir /opt/CosyVoice/CosyVoice2-0.5B
+python3 server.py --port 50000 --max_conc 4 --model_dir /opt/CosyVoice/CosyVoice2-0.5B || true
 
 # 5. 服务器崩溃后，保持容器运行（进入交互式 Shell）
 echo "Server crashed or exited. Dropping into a shell for debugging..."
