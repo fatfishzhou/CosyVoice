@@ -36,7 +36,7 @@ python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. cosyvoice.pro
 
 # 4. 启动 gRPC 服务
 echo "Starting server..."
-python3 server.py --port 50000 --max_conc 4 --model_dir /opt/CosyVoice/CosyVoice2-0.5B
+python3 server.py --port 50000 --model_dir /opt/CosyVoice/CosyVoice2-0.5B
 
 # 5. 服务器崩溃后，保持容器运行（进入交互式 Shell）
 echo "Server crashed or exited. Dropping into a shell for debugging..."
