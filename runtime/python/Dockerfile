@@ -18,7 +18,7 @@ RUN wget https://aka.ms/downloadazcopy-v10-linux -O /tmp/azcopy.tgz && \
 # 安装Python依赖
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir grpcio grpcio-tools protobuf \
+    pip install --no-cache-dir grpcio grpcio-tools protobuf && \
     pip install --no-cache-dir -r requirements.txt
 
 # 复制启动脚本并设置执行权限
