@@ -7,9 +7,10 @@ set -e
 MODEL_URL=${MODEL_SAS_URL:-"https://aiassistmldevw0107074910.blob.core.windows.net/model-cosyvoice/CosyVoice2-0.5B?sp=rl&st=2025-02-11T14:35:13Z&se=2025-12-31T22:35:13Z&spr=https&sv=2022-11-02&sr=c&sig=04wDlFSHH8KK%2FKqMqtG5fdKdHZ%2BPFuUsPgWm8%2FIQ5nM%3D"}
 
 echo "[Entrypoint] Starting initialization..."
+echo "[Entrypoint] MODEL_SAS_URL is: '$MODEL_SAS_URL'"  # 打印变量值
 # 2. 下载模型文件到工作目录
 echo "[Entrypoint] Downloading model folder with AzCopy..."
-azcopy copy "$MODEL_SAS_URL" "/opt/CosyVoice/CosyVoice2-0.5B" --recursive
+azcopy copy "$MODEL_SAS_URL" "/opt/CosyVoice/" --recursive
 
 # 2. 强制更新代码仓库
 echo "Updating source code..."
